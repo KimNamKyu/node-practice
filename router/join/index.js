@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
 //미들웨어 설정 및 로컬스토리지 설정 local-join 사용 선언
 passport.use('local-join', new LocalStrategy({
     usernameField: 'email',
-    passwordField: 'password',
+    passwordField: 'password', 
     passReqToCallback: true
 }, (req, email, password, done) => {
     //done 명시적으로 사용하면 비동기동작
