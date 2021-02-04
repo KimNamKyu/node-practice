@@ -5,6 +5,7 @@ let path = require('path');
 let main = require('./main/main')
 let email = require('./email/email');
 let join = require('./join/index')
+let login = require('./login/index')
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "../public/main.html")) //__dirname 절대경로를 노드에서 제공
 })
@@ -12,4 +13,5 @@ router.get('/', (req, res) => {
 router.use('/main', main)
 router.use('/email', email);
 router.use('/join', join)
+router.use('/login', login)
 module.exports = router;

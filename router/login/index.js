@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
     let msg;
     let errMsg = req.flash('error')
     if(errMsg) msg = errMsg;
-    res.render('join.ejs', {'messages': msg})
+    res.render('login.ejs', {'messages': msg})
 })
 
 //session 저장 처리
@@ -35,13 +35,12 @@ passport.deserializeUser((id, done) => {
 })
 
 //미들웨어 설정 및 로컬스토리지 설정 local-join 사용 선언
-passport.use('local-join', new LocalStrategy({
+passport.use('local-login', new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password', 
     passReqToCallback: true
 }, (req, email, password, done) => {
-    //done 명시적으로 사용하면 비동기동작
-    //인증처리 부분
+    console.log(1)
     let query = connection.query('select * from user where email=?', [email], (err, rows) => {
         if(err) return done(err)
 
@@ -60,23 +59,17 @@ passport.use('local-join', new LocalStrategy({
     })
 }))
 
-//라우터 처리
-router.post('/', passport.authenticate('local-join', {
-    successRedirect: '/main',
-    failureRedirect: '/join',
-    failureFlash: true 
-}))
+//라우터 처리 ajax => json 응답처리
+router.post('/', (req, res, next) => {
+    passport.authenticate('local-login', (err, user, info) => {
+        if(err) res.status(500).json(err);
+        if(!user) {return res.status(401).json(info.message)}
 
-// router.post('/', (req, res) => {
-//     let body = req.body;
-//     let email = body.email;
-//     let name = body.name;
-//     let passwd = body.password;
-//     console.log(email)
-//     let query = connection.query('insert into user (email,name,pw) values ("'+email+'","'+name+'","'+passwd+'")', (err,rows) => {
-//         if(err) {throw err;}
-//         res.render('welcome.ejs', {'name': name, 'id':rows.insertId})
-//     })
-// })
+        req.logIn(user, (err) => {
+            if(err) {return next(err)}
+            return res.json(user)
+        })
+    })(req, res, next);
+})
  
 module.exports = router;
