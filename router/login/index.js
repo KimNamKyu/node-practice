@@ -40,21 +40,16 @@ passport.use('local-login', new LocalStrategy({
     passwordField: 'password', 
     passReqToCallback: true
 }, (req, email, password, done) => {
-    console.log(1)
     let query = connection.query('select * from user where email=?', [email], (err, rows) => {
         if(err) return done(err)
 
         //같은 이메일 여부 체크
         if(rows.length) {
             console.log('existed user')
-            return done(null, false, {message: 'your email is already used'})
+            console.log(rows)
+            return done(null, {'email' : email, 'id' : rows[0].uid})
         }else{
-            console.log('create user')
-            let sql = {email: email, pw: password}
-            let query = connection.query('insert into user set?', sql, (err, rows) => {
-                if(err) {throw err}
-                return done(null, {'email' : email, 'id' : rows.insertId})
-            })
+            return done(null, false, {'message': 'your login info not found!!'})
         }
     })
 }))
